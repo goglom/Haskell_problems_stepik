@@ -1,5 +1,4 @@
-module Task_3'5'8 where
+module Task_3'5'7 where
 
-evenOnly :: [a] -> [a]
-evenOnly = reverse . snd . foldl (\(pos,lst) x  -> if even pos then (pos + 1, x:lst) else (pos + 1, lst)) (1, [])
-
+meanList :: [Double] -> Double
+meanList = (\(n,s) -> s / n) . foldr (\x (n, s) -> (n + 1, x + s)) (0, 0)
