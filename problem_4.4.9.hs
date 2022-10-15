@@ -3,7 +3,7 @@ module Problem_4'4'9 where
 import Data.List (elemIndex, find)
 import Data.Char (isLetter, isSpace)
 
-data Error = ParsingError String | IncompleteDataError | IncorrectDataError String deriving Show
+data Error = ParsingError | IncompleteDataError | IncorrectDataError String deriving Show
 
 data Person = Person { firstName :: String, lastName :: String, age :: Int } deriving Show
 
@@ -23,15 +23,15 @@ trimString = f . f
 
 parseLine :: String -> Either Error (String, String)
 parseLine line = case break (== '=') line of
-      (_, [])    -> Left $ ParsingError $ "No '=' sign in line: '" ++ line ++ "'"
-      (_, "=")   -> Left $ ParsingError "empty part after '='"
+      (_, [])    -> Left ParsingError
+      (_, "=")   -> Left ParsingError
       (p1, _:p2) -> Right (trimString p1, trimString p2)
 
 
 splitOn3Lines :: String -> Either Error [String]
 splitOn3Lines str = case map trimString . splitOnLines $ str of
       lines | length lines == 3 -> Right lines
-            | otherwise         -> Left $ ParsingError "number of lines not equals to 3"
+            | otherwise         -> Left ParsingError
 
 
 findIntegerField :: String -> [(String, String)] -> Either Error Int
