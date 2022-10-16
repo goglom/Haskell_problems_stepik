@@ -27,13 +27,6 @@ parseLine line = case break (== '=') line of
       (_, "=")   -> Left ParsingError
       (p1, _:p2) -> Right (trimString p1, trimString p2)
 
-
-splitOn3Lines :: String -> Either Error [String]
-splitOn3Lines str = case map trimString . splitOnLines $ str of
-      lines | length lines == 3 -> Right lines
-            | otherwise         -> Left ParsingError
-
-
 findIntegerField :: String -> [(String, String)] -> Either Error Int
 findIntegerField fieldName fields = case find (\(key, value) -> key == fieldName) fields  of
       Nothing            -> Left IncompleteDataError
@@ -43,9 +36,8 @@ findIntegerField fieldName fields = case find (\(key, value) -> key == fieldName
 
 findStrField :: String -> [(String, String)] -> Either Error String
 findStrField fieldName fields = case find (\(key, value) -> key == fieldName) fields  of
-      Nothing                                    -> Left IncompleteDataError
-      Just (_, valueStr) | all isLetter valueStr -> Right valueStr
-                         | otherwise             -> Left (IncorrectDataError valueStr)
+      Nothing            -> Left IncompleteDataError
+      Just (_, valueStr) -> Right valueStr
 
 
 makePerson :: [(String, String)] -> Either Error Person
@@ -66,11 +58,17 @@ safetyMap func (x:xs) = case safetyMap func xs of
             Right y  -> Right (y:ys)
 
 parsePerson :: String -> Either Error Person
-parsePerson input = case splitOn3Lines input of
-      Left err    -> Left err
-      Right lines -> case safetyMap parseLine lines of
+parsePerson input = let  lines = map trimString (splitOnLines input) in  
+      case safetyMap parseLine lines of
             Left err     -> Left err
             Right fields -> makePerson fields
 
 
-example = "firstName = John\nlastName = Connor\nage = 30"
+test1 = parsePerson "firstName = John\nlastName = Connor\nage = 30"
+--Right (Person {firstName = "John", lastName = "Connor", age = 30})
+
+test2 = parsePerson "firstName = John Smith\nlastName = Connor\nage = 30\nasde=as11"
+--Right (Person {firstName = "John Smith", lastName = "Connor", age = 30})
+
+test3 = parsePerson "firstName=Barbarian\nlastName=Conn On\nage=30"
+--Right (Person {firstName = "Barbarian", lastName = "Conn On", age = 30})
